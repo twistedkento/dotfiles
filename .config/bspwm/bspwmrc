@@ -1,0 +1,72 @@
+#!/bin/bash
+
+export AWT_TOOLKIT=MToolkit &
+export _JAVA_AWT_WM_NONREPARENTING=1
+
+# shellcheck disable=2046
+eval $(gnome-keyring-daemon --start)
+export SSH_AUTH_SOCK
+
+pgrep -x sxhkd > /dev/null || sxhkd &
+
+/home/kento/scripts/fix_wallpaper.py &
+/home/kento/scripts/fix_display.py
+# feh --randomize --bg-scale /home/kento/wallpapers/approved/ &
+
+# letter_array=('a' 'b' 'c' 'd' 'e' 'f' 'g' 'h' 'i' 'j' 'k' 'l')
+#
+# MON_AMOUNT=$(bspc query -M | wc -l)
+# SLICE=$((9/MON_AMOUNT))
+
+# i=1
+# for monitor in $(bspc query -M); do
+# # shellcheck disable=2046
+#   bspc monitor "$monitor" \
+#     -n "$i" \
+#     -d $(printf "$i/%s " "${letter_array[@]:0:$SLICE}")
+#   ((i++))
+# done
+
+bspc config border_width         1
+bspc config window_gap           4
+
+bspc config split_ratio          0.52
+bspc config borderless_monocle   true
+bspc config gapless_monocle      true
+bspc config click_to_focus       true
+bspc config remove_unplugged_monitors true
+#bspc config top_padding 16
+bspc config remove_disabled_monitors true
+
+bspc rule -a Gimp desktop='^8' state=floating follow=on
+bspc rule -a Chromium desktop='^2'
+bspc rule -a mplayer2 state=floating
+bspc rule -a Kupfer.py focus=on
+bspc rule -a Screenkey manage=off
+bspc rule -a "Display-im6.q16" state=floating
+bspc rule -a zoom state=floating
+bspc rule -a "jetbrains-goland:*:Welcome to Goland" state=floating center=on
+bspc rule -a "jetbrains-goland:*:win0" state=floating center=on
+bspc rule -a "Google-chrome:*:Google Meet" state=floating
+
+xrdb -merge ~/.Xresources
+xsetroot -cursor_name left_ptr
+setxkbmap se
+setxkbmap -option caps:escape
+xset +fp /usr/share/fonts/
+fc-cache -f
+xscreensaver -nosplash &
+xautolock -detectsleep -corners -0-0 -time 60 -locker "sudo systemctl suspend" &
+#/usr/bin/pnmixer &
+#/usr/bin/compton &
+/usr/bin/dunst &
+#/usr/bin/stalonetray &
+/home/kento/scripts/launch_polybar.sh &
+/usr/bin/nm-applet &
+/usr/bin/blueman-applet &
+#/usr/bin/cbatticon -i standard &
+/usr/bin/picom --config ~/.config/picom.conf -b
+/usr/bin/slack --startup &
+/usr/bin/jetbrains-toolbox --minimize &
+/usr/bin/lxpolkit &
+# /usr/bin/zoom &
